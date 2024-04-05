@@ -96,10 +96,11 @@ class Game {
         };
         
        for (const f in this.player.bullets){
-        if(this.player.bullets[f].collisionHandled && this.player.bullets[f].collisionHandled)
-        this.player.bullets[f].collisionHandled= true;
-        this.player2.hp304 -=10;
-        console.log("PLAYER hp " + this.player2.hp304);
+        if(!this.player.bullets[f].collisionHandled && this.player.bullets[f].collision(this.player2)){
+            this.player.bullets[f].collisionHandled= true;
+            this.player2.hp304 -=10;
+            console.log("PLAYER hp " + this.player2.hp304);
+        }
        }
 
         this.player.update();
@@ -118,10 +119,12 @@ class Game {
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.player.draw(this.ctx);
-        this.player2.draw(this.ctx);
         this.fireball.draw(this.ctx);
         this.ground.draw(this.ctx);
         this.obstacle.draw(this.ctx);  
+        if (this.player2.hp304 > 0) {
+            this.player2.draw(this.ctx);
+        }
     }
 }
 

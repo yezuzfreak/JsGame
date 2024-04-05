@@ -42,10 +42,6 @@ class Player extends Hitbox {
         this.bullets = [];
 
         this.hp304 = 104;                  
-        this.maxHealthPoints = this.hp304; 
-        this.healthBarWidth = 100; 
-        this.healthBarHeight = 10; 
-        this.healthBarColor = 'green'; 
     }
 
     jump() {
@@ -65,31 +61,17 @@ class Player extends Hitbox {
         this.bullets.push(fireball);
     }
 
-    drawHealthBar(ctx) {
-
-        const healthPercentage = this.hp304 / this.maxHealthPoints;
-        const healthBarWidth = this.healthBarWidth * healthPercentage;
-
-        ctx.fillStyle = this.healthBarColor;
-        ctx.fillRect(this.position.x + 15, this.position.y + 10, healthBarWidth, this.healthBarHeight);
-    }
 
     draw(ctx) {
-        // Disegna il giocatore
         ctx.drawImage(this.images[this.currentImageIndex], this.position.x, 
             ctx.canvas.clientHeight - this.position.y, 
             175, 175);
-
-        // Disegna il nome del giocatore
         ctx.font = "30px Verdana";
         ctx.fillStyle = "white";
         ctx.fillText(this.name, this.position.x + 50, (ctx.canvas.clientHeight - (this.position.y + 5)));
-
-        // Disegna la barra dei punti vita
-        this.drawHealthBar(ctx);
-
-        // Disegna le munizioni sparate dal giocatore
         this.bullets.forEach((b) => b.draw(ctx));
+        ctx.fillStyle = "green";
+        ctx.fillRect(this.position.x, this.position.y - 30, this.hp304, 10);
 
         super.draw(ctx);
     }
