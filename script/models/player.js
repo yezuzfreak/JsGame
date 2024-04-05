@@ -69,13 +69,12 @@ class Player extends Hitbox {
     }
 
     drawHealthBar(ctx) {
-        // Calcola la larghezza della barra dei punti vita in base alla percentuale di salute rimasta
+
         const healthPercentage = this.hp304 / this.maxHealthPoints;
         const healthBarWidth = this.healthBarWidth * healthPercentage;
 
-        // Disegna la barra dei punti vita
         ctx.fillStyle = this.healthBarColor;
-        ctx.fillRect(this.position.x, this.position.y - 20, healthBarWidth, this.healthBarHeight);
+        ctx.fillRect(this.position.x + 15, this.position.y + 10, healthBarWidth, this.healthBarHeight);
     }
 
     draw(ctx) {

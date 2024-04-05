@@ -20,19 +20,20 @@ class Game {
         this.canvas.style.backgroundImage = "url('" + this.config.BACKGROUND_IMG_SRC + "')";
         this.canvas.style.backgroundSize = "contain";
 
-        this.ground = new Hitbox(0,40, this.canvas.width, 150);
-        this.player = new Player(this.config.PLAYER_SRC, this.playerNickname);
-        
-        // Posizione iniziale del player 2 a destra
         const player2StartPosition = { 
-            x: this.config.BG_WIDTH - this.config.PLAYER_WIDTH - 50, 
-            y: this.config.GROUND_Y
+            x: this.config.PLAYER_WIDTH - 50, 
+            y: this.config.GROUND_Y 
         };
-        this.player2 = new Player(this.config.PLAYER_SRC, "gigi", player2StartPosition);
+
+        this.player = new Player(this.config.PLAYER_SRC, this.playerNickname);
+        this.player2 = new Player(this.config.PLAYER_SRC, "Gigi", player2StartPosition);
+
+        this.player2Hitbox = new Hitbox(player2StartPosition.x, player2StartPosition.y, this.config.PLAYER_WIDTH, this.config.PLAYER_HEIGHT);
 
         this.fireball = new Sprite(this.config.FIREBALL_SRC, 360, 360, 6, 1, 50, 50);
         this.obstacle = new Hitbox(550, 200, 100, 200);
         this.bgMusic = new Sound("assets/audio/background.mp3");
+        this.ground = new Hitbox(0,40, this.canvas.width, 150);
     }
 
     keyboardPressedHandler(key) {
@@ -81,8 +82,27 @@ class Game {
             }
             console.log("PLAYER CONTRO IL MURO");
         };
+        if(this.player2.collision(this.ground)){
+            if(this.player2.velocity.y < 0){
+                this.player2.velocity.y = 0;
+                this.player2.canJump = true;
+                this.player2.position.y = this.ground.position.y + this.player2.height;
+            }     
+        }
+        if(this.player2.collision(this.obstacle) || this.obstacle.collision(this.player2)) {
+            if(this.player2.position.y > this.obstacle.y + this.player2.height){
+                this.player2.velocity.y = 0;
+            }
+            console.log("PLAYER CONTRO IL MURO");
+        };
+        
+        // Controllo se la fireball esiste e ha una hitbox
+        if (this.fireball && this.fireball.hitbox && this.player2Hitbox.collision(this.fireball.hitbox)) {
+            this.player2.hp304 -= 10;
+        }
+
         this.player.update();
-        this.player2.update(); // Aggiornamento del secondo giocatore
+        this.player2.update();
         this.fireball.update();
     }
 
@@ -97,7 +117,7 @@ class Game {
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.player.draw(this.ctx);
-        this.player2.draw(this.ctx); // Disegno del secondo giocatore
+        this.player2.draw(this.ctx);
         this.fireball.draw(this.ctx);
         this.ground.draw(this.ctx);
         this.obstacle.draw(this.ctx);  
