@@ -20,15 +20,14 @@ class Game {
         this.canvas.style.backgroundImage = "url('" + this.config.BACKGROUND_IMG_SRC + "')";
         this.canvas.style.backgroundSize = "contain";
 
-        const player2StartPosition = { 
-            x: this.config.PLAYER_WIDTH - 50, 
-            y: this.config.GROUND_Y 
-        };
+    
 
         this.player = new Player(this.config.PLAYER_SRC, this.playerNickname);
-        this.player2 = new Player(this.config.PLAYER_SRC, "Gigi", player2StartPosition);
+        this.player2 = new Player(this.config.PLAYER_SRC, "Gigi");
 
-        this.player2Hitbox = new Hitbox(player2StartPosition.x, player2StartPosition.y, this.config.PLAYER_WIDTH, this.config.PLAYER_HEIGHT);
+        this.player2.position.x = this.canvas.width - 200;
+        this.player2.velocity.x = 0;   
+    
 
         this.fireball = new Sprite(this.config.FIREBALL_SRC, 360, 360, 6, 1, 50, 50);
         this.obstacle = new Hitbox(550, 200, 100, 200);
@@ -96,10 +95,12 @@ class Game {
             console.log("PLAYER CONTRO IL MURO");
         };
         
-        // Controllo se la fireball esiste e ha una hitbox
-        if (this.fireball && this.fireball.hitbox && this.player2Hitbox.collision(this.fireball.hitbox)) {
-            this.player2.hp304 -= 10;
-        }
+       for (const f in this.player.bullets){
+        if(this.player.bullets[f].collisionHandled && this.player.bullets[f].collisionHandled)
+        this.player.bullets[f].collisionHandled= true;
+        this.player2.hp304 -=10;
+        console.log("PLAYER hp " + this.player2.hp304);
+       }
 
         this.player.update();
         this.player2.update();

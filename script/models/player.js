@@ -41,8 +41,8 @@ class Player extends Hitbox {
         this.canJump = true;
         this.bullets = [];
 
-        this.hp304 = 104;                  // Impostare i punti vita iniziali del giocatore
-        this.maxHealthPoints = this.hp304; // Impostare i massimi punti vita del giocatore
+        this.hp304 = 104;                  
+        this.maxHealthPoints = this.hp304; 
         this.healthBarWidth = 100; 
         this.healthBarHeight = 10; 
         this.healthBarColor = 'green'; 
@@ -51,10 +51,7 @@ class Player extends Hitbox {
     jump() {
         if(this.canJump) {
             this.velocity.y = 32;
-            //this.velocity.x = 10;
         }
-        //  TODO: Fix double jump based on whatever ground collision
-        // Not only ground
         if(this.position.y > conf.GROUND_Y) {
             this.canJump = false;
         }
