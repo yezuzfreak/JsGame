@@ -32,9 +32,12 @@ class Hitbox {
     }
 
     draw(ctx){
+        //  Per vedere i contori dei disegni
+    /*
         ctx.lineWidth = "4";
         ctx.strokeStyle = "red";
         ctx.strokeRect(this.position.x, ctx.canvas.clientHeight - this.position.y, this.width, this.height);
+    */
     }
 
 

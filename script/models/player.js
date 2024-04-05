@@ -15,8 +15,13 @@ class Player extends Hitbox {
     moving;
     update_timer;
 
+    maxHealthPoints;
+    healthBarWidth;
+    healthBarHeight;
+    healthBarColor;
+
     constructor(images_srcs, name) {
-        super(50, conf.GROUND_Y,165,175)
+        super(50, conf.GROUND_Y,165,175);
         this.name = name;
         // importo le immagini dello sprite_sheet nel vettore di immagini
         this.images = [];
@@ -30,12 +35,17 @@ class Player extends Hitbox {
 
         this.velocity = new Vector2D();
         this.velocity.set(0, 0);
-        this.hp304 = 104;
         this.score = 0;
         this.moving = false;
         this.update_timer = new Clock(125);
         this.canJump = true;
         this.bullets = [];
+
+        this.hp304 = 104;                  // Impostare i punti vita iniziali del giocatore
+        this.maxHealthPoints = this.hp304; // Impostare i massimi punti vita del giocatore
+        this.healthBarWidth = 100; 
+        this.healthBarHeight = 10; 
+        this.healthBarColor = 'green'; 
     }
 
     jump() {
@@ -58,17 +68,34 @@ class Player extends Hitbox {
         this.bullets.push(fireball);
     }
 
+    drawHealthBar(ctx) {
+        // Calcola la larghezza della barra dei punti vita in base alla percentuale di salute rimasta
+        const healthPercentage = this.hp304 / this.maxHealthPoints;
+        const healthBarWidth = this.healthBarWidth * healthPercentage;
+
+        // Disegna la barra dei punti vita
+        ctx.fillStyle = this.healthBarColor;
+        ctx.fillRect(this.position.x, this.position.y - 20, healthBarWidth, this.healthBarHeight);
+    }
+
     draw(ctx) {
+        // Disegna il giocatore
         ctx.drawImage(this.images[this.currentImageIndex], this.position.x, 
             ctx.canvas.clientHeight - this.position.y, 
             175, 175);
+
+        // Disegna il nome del giocatore
         ctx.font = "30px Verdana";
         ctx.fillStyle = "white";
         ctx.fillText(this.name, this.position.x + 50, (ctx.canvas.clientHeight - (this.position.y + 5)));
+
+        // Disegna la barra dei punti vita
+        this.drawHealthBar(ctx);
+
+        // Disegna le munizioni sparate dal giocatore
         this.bullets.forEach((b) => b.draw(ctx));
 
         super.draw(ctx);
-        
     }
 
     update() {
