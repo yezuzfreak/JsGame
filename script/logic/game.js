@@ -1,129 +1,99 @@
-import Player from "../models/player.js";
-import Sound from "../models/sound.js";
-import Sprite from "../models/sprite.js";
-import Hitbox from "../models/hitbox.js";
+import Bird from '../models/bird.js';
+import Tubes from '../models/tubes.js';
+import conf from '../config.js';
 
-class Game {
-    playerNickname;
-
-    constructor(canvas, config, playerNickname) {
-        this.config = config
+ class Game {
+    constructor(canvas) {
         this.canvas = canvas;
-        this.playerNickname = playerNickname;
         this.ctx = canvas.getContext('2d');
+
+        this.backgroundImage = new Image();
+        this.backgroundImage.src = '../images/fp.png'; 
+
+        this.bird = new Bird(this.canvas);
+        this.tubes = new Tubes(this.canvas);
+
+        this.score = 0;
+        this.gameOver = false;
+
+        this.initialize();
     }
 
-    init() {
-        this.canvas.style.position = 'absolute';
-        this.canvas.width = this.config.BG_WIDTH;
-        this.canvas.height = this.config.BG_HEIGHT;
-        this.canvas.style.backgroundImage = "url('" + this.config.BACKGROUND_IMG_SRC + "')";
-        this.canvas.style.backgroundSize = "contain";
+    initialize() {
+        this.canvas.addEventListener('click', () => {
+            if (!this.gameOver) {
+                this.bird.flap();
+            } else {
+                this.reset();
+                this.canvas.addEventListener('click', this.clickHandler);
+            }
+        });
 
-    
-
-        this.player = new Player(this.config.PLAYER_SRC, this.playerNickname);
-        this.player2 = new Player(this.config.PLAYER_SRC, "Gigi");
-
-        this.player2.position.x = this.canvas.width - 200;
-        this.player2.velocity.x = 0;   
-    
-
-        this.fireball = new Sprite(this.config.FIREBALL_SRC, 360, 360, 6, 1, 50, 50);
-        this.obstacle = new Hitbox(550, 200, 100, 200);
-        this.bgMusic = new Sound("assets/audio/background.mp3");
-        this.ground = new Hitbox(0,40, this.canvas.width, 150);
+        this.reset();
+        this.animate();
     }
 
-    keyboardPressedHandler(key) {
-        switch(key) {
-            case "d":
-                this.player.velocity.x = this.config.WALK_SPEED;
-                break;
-            case "a":
-                this.player.velocity.x = -this.config.WALK_SPEED;
-                break;
-            case " ":
-                this.player.jump(); 
-                break;
-            case "w":
-                this.player.addSpeed(0, 3);
-                break;
-            case "g":
-                this.player.shoot(this.ctx);
-                break;
-        }
+    reset() {
+        this.bird.reset();
+        this.tubes.reset();
+        this.score = 0;
+        this.gameOver = false;
     }
 
-    keyboardReleasedHandler(key) {
-        switch(key) {
-            case "d":
-            case "a":
-                this.player.velocity.x = 0;
-                break;
-            case "w":
-                this.player.setSpeed(0, 0);
-                break;
+    animate() {
+        if (!this.gameOver) {
+            this.update();
+            this.draw();
+            requestAnimationFrame(() => this.animate());
         }
     }
 
     update() {
-        if(this.player.collision(this.ground)){
-            if(this.player.velocity.y < 0){
-                this.player.velocity.y = 0;
-                this.player.canJump = true;
-                this.player.position.y = this.ground.position.y + this.player.height;
-            }     
+        if (this.bird.y + this.bird.height >= this.canvas.height || this.tubes.checkCollision(this.bird)) {
+            this.gameOver = true;
         }
-        if(this.player.collision(this.obstacle) || this.obstacle.collision(this.player)) {
-            if(this.player.position.y > this.obstacle.y + this.player.height){
-                this.player.velocity.y = 0;
+
+        if (!this.gameOver) {
+            this.bird.update();
+            this.tubes.update();
+
+            if (this.tubes.passedTube(this.bird.x +1000)) {
+                this.score++;
             }
-            console.log("PLAYER CONTRO IL MURO");
-        };
-        if(this.player2.collision(this.ground)){
-            if(this.player2.velocity.y < 0){
-                this.player2.velocity.y = 0;
-                this.player2.canJump = true;
-                this.player2.position.y = this.ground.position.y + this.player2.height;
-            }     
         }
-        if(this.player2.collision(this.obstacle) || this.obstacle.collision(this.player2)) {
-            if(this.player2.position.y > this.obstacle.y + this.player2.height){
-                this.player2.velocity.y = 0;
-            }
-            console.log("PLAYER CONTRO IL MURO");
-        };
-        
-       for (const f in this.player.bullets){
-        if(!this.player.bullets[f].collisionHandled && this.player.bullets[f].collision(this.player2)){
-            this.player.bullets[f].collisionHandled= true;
-            this.player2.hp304 -=10;
-            console.log("PLAYER hp " + this.player2.hp304);
-        }
-       }
-
-        this.player.update();
-        this.player2.update();
-        this.fireball.update();
-    }
-
-    playBgMusic() {
-        this.bgMusic.play();
-    }
-
-    stopBgMusic() {
-        this.bgMusic.stop();
     }
 
     draw() {
+        
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.player.draw(this.ctx);
-        this.fireball.draw(this.ctx);
-        this.ground.draw(this.ctx);
-        this.obstacle.draw(this.ctx);  
-        if (this.player2.hp304 > 0) {
-            this.player2.draw(this.ctx);
+
+        
+        this.bird.draw();
+        this.tubes.draw();
+        this.drawScore();
+
+        if (this.gameOver) {
+            this.drawGameOver();
+        }
+    }
+
+    drawScore() {
+        this.ctx.fillStyle = 'black';
+        this.ctx.font = '24px Arial';
+        this.ctx.fillText(`Score: ${this.score}`, 20, 30);
+    }
+
+    drawGameOver() {
+        this.ctx.fillStyle = 'black';
+        this.ctx.font = '36px Arial';
+        this.ctx.fillText('Game Over', this.canvas.width / 2 - 100, this.canvas.height / 2 - 50);
+        this.ctx.fillText(`Score: ${this.score}`, this.canvas.width / 2 - 50, this.canvas.height / 2);
+        this.ctx.fillText('Click to play again', this.canvas.width / 2 - 150, this.canvas.height / 2 + 50);
+    }
+
+    keyboardPressedHandler(key) {
+        if (key === ' ') {
+            this.bird.flap();
         }
     }
 }
