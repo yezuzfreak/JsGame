@@ -7,11 +7,11 @@ import conf from '../config.js';
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
 
-        this.backgroundImage = new Image();
-        this.backgroundImage.src = '../images/fp.png'; 
-
         this.bird = new Bird(this.canvas);
         this.tubes = new Tubes(this.canvas);
+        this.scoreSound = new Audio('../assets/audio/scoreSound.mp3');
+        this.hitSound = new Audio('../assets/audio/hitSound.mp3');
+        
 
         this.score = 0;
         this.gameOver = false;
@@ -23,6 +23,7 @@ import conf from '../config.js';
         this.canvas.addEventListener('click', () => {
             if (!this.gameOver) {
                 this.bird.flap();
+   
             } else {
                 this.reset();
                 this.canvas.addEventListener('click', this.clickHandler);
@@ -51,6 +52,7 @@ import conf from '../config.js';
     update() {
         if (this.bird.y + this.bird.height >= this.canvas.height || this.tubes.checkCollision(this.bird)) {
             this.gameOver = true;
+            this.hitSound.play();
         }
 
         if (!this.gameOver) {
@@ -59,6 +61,7 @@ import conf from '../config.js';
 
             if (this.tubes.passedTube(this.bird.x +1000)) {
                 this.score++;
+                this.scoreSound.play();
             }
         }
     }
